@@ -16,31 +16,81 @@ namespace BookstoreAPI.Controllers
             _booksContext = context;
         }
 
-        // GET: api/Books?page=1&limit=5
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks([FromQuery] int page = 1, [FromQuery] int limit = 5)
+[HttpGet]
+public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
+    [FromQuery] int page = 1, 
+    [FromQuery] int limit = 5, 
+    [FromQuery] List<string>? projectTypes = null)
+{
+    try 
+    {
+        var query = _booksContext.Books.AsQueryable();
+
+        // Get all unique classifications
+        var allClassifications = await _booksContext.Books
+            .Select(b => b.Classification)
+            .Distinct()
+            .ToListAsync();
+
+        // If projectTypes is null or contains all classifications, skip filtering
+        if (projectTypes != null && 
+            projectTypes.Any() && 
+            projectTypes.Count != allClassifications.Count)
         {
-            if (page < 1 || limit < 1)
-            {
-                return BadRequest("Page and limit must be greater than zero.");
-            }
-
-            var totalBooks = await _booksContext.Books.CountAsync(); // Get total count
-            var books = await _booksContext.Books
-                .Skip((page - 1) * limit) // Skip records based on page
-                .Take(limit) // Limit the number of records
-                .ToListAsync();
-
-            var response = new
-            {
-                TotalBooks = totalBooks,
-                Page = page,
-                Limit = limit,
-                TotalPages = (int)Math.Ceiling((double)totalBooks / limit),
-                Books = books
-            };
-
-            return Ok(response);
+            query = query.Where(p => projectTypes.Contains(p.Classification));
         }
+
+        // Validate page and limit parameters
+        if (page < 1)
+        {
+            return BadRequest("Page must be greater than zero.");
+        }
+
+        if (limit < 1)
+        {
+            return BadRequest("Limit must be greater than zero.");
+        }
+
+        // Calculate total count before pagination
+        var totalBooks = await query.CountAsync();
+
+        // Calculate total pages
+        var totalPages = (int)Math.Ceiling((double)totalBooks / limit);
+
+        // Apply pagination
+        var books = await query
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .ToListAsync();
+
+        var response = new
+        {
+            TotalBooks = totalBooks,
+            Page = page,
+            Limit = limit,
+            TotalPages = totalPages,
+            Books = books,
+            AvailableClassifications = allClassifications
+        };
+
+        return Ok(response);
+    }
+    catch (Exception ex)
+    {
+        // Log the exception (you should implement proper logging)
+        return StatusCode(500, "An error occurred while fetching books.");
+    }
+}
+
+        [HttpGet("Categories")]
+        public IActionResult GetBookCategories()
+        {
+            var categories = _booksContext.Books
+                .Select(b => b.Classification) // Assuming there's a `Category` property
+                .Distinct()
+                .ToList();
+
+            return Ok(categories);
+        } 
     }
 }

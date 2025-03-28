@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Book } from "../types/Book";
 
-const BookList: React.FC = () => {
+function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   const [books, setBooks] = useState<Book[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [booksPerPage, setBooksPerPage] = useState(5);
@@ -9,34 +9,49 @@ const BookList: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sorting state
 
   useEffect(() => {
-    fetch(
-      `http://localhost:5181/api/Books?page=${currentPage}&limit=${booksPerPage}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchBooks = async () => {
+      const categoryParams = selectedCategories
+        .map((cat) => `projectTypes=${encodeURIComponent(cat)}`)
+        .join("&");
+      try {
+        const response = await fetch(
+          `http://localhost:5181/api/Books?page=${currentPage}&limit=${booksPerPage}${selectedCategories.length ? `&${categoryParams}` : ""}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
         let sortedBooks = data.books.sort((a: Book, b: Book) => {
           return sortOrder === "asc"
             ? a.title.localeCompare(b.title)
             : b.title.localeCompare(a.title);
         });
+
         setBooks(sortedBooks);
         setTotalPages(data.totalPages);
-      })
-      .catch((error) => console.error("Error fetching books:", error));
-  }, [currentPage, booksPerPage, sortOrder]); // Re-run when sorting changes
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      }
+    };
+
+    fetchBooks();
+  }, [currentPage, booksPerPage, sortOrder, selectedCategories]);
 
   // Toggle sorting order
-  const toggleSortOrder = () => {
+  function toggleSortOrder() {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-  };
+  }
 
   // Handle books per page change
-  const handleBooksPerPageChange = (
+  function handleBooksPerPageChange(
     event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  ) {
     setBooksPerPage(Number(event.target.value));
     setCurrentPage(1); // Reset to page 1
-  };
+  }
 
   return (
     <div className="container mt-4">
@@ -53,7 +68,7 @@ const BookList: React.FC = () => {
           <select
             className="form-select d-inline w-auto"
             value={booksPerPage}
-            onChange={handleBooksPerPageChange} // ✅ Fixed this!
+            onChange={handleBooksPerPageChange}
           >
             <option value="5">5</option>
             <option value="10">10</option>
@@ -101,6 +116,6 @@ const BookList: React.FC = () => {
       )}
     </div>
   );
-};
+}
 
 export default BookList;
