@@ -159,3 +159,4 @@ C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_S
 C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\obj\Debug\net8.0\Mission11_Sadie.pdb
 C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\obj\Debug\net8.0\Mission11_Sadie.genruntimeconfig.cache
 C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\obj\Debug\net8.0\ref\Mission11_Sadie.dll
+C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\obj\Debug\net8.0\Mission11_Sadie.sourcelink.json

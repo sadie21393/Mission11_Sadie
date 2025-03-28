@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using BookstoreAPI.Data;
 using BookstoreAPI.Models;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BookstoreAPI.Controllers
 {
@@ -41,6 +42,38 @@ namespace BookstoreAPI.Controllers
             };
 
             return Ok(response);
+
+          
         }
+
+        [HttpGet("Categories")]
+        public IActionResult GetBookCategories()
+        {
+            var categories = _booksContext.Books
+                .Select(b => b.Classification) // Assuming there's a `Category` property
+                .Distinct()
+                .ToList();
+
+            return Ok(categories);
+        } 
+
+        [HttpGet]
+        public IActionResult GetBooks([FromQuery] int page, [FromQuery] int limit, [FromQuery] string categories)
+        {
+            var query = _booksContext.Books.AsQueryable();
+
+            if (!string.IsNullOrEmpty(categories))
+            {
+                var categoryList = categories.Split(',').ToList();
+                query = query.Where(b => categoryList.Contains(b.Classification));
+            }
+
+            var books = query.Skip((page - 1) * limit).Take(limit).ToList();
+            var totalBooks = query.Count();
+
+            return Ok(new { books, totalPages = (int)Math.Ceiling(totalBooks / (double)limit) });
+        }
+
+
     }
 }

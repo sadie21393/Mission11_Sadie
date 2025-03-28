@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Book } from "../types/Book";
+import CategoryFilter from "./CategoryFilter";
 
 const BookList: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -8,10 +9,31 @@ const BookList: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sorting state
 
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = event.target;
+
+    setSelectedCategories((prevSelectedCategories) => {
+      if (checked) {
+        return [...prevSelectedCategories, value]; // Add category if checked
+      } else {
+        return prevSelectedCategories.filter((category) => category !== value); // Remove category if unchecked
+      }
+    });
+  };
+
   useEffect(() => {
-    fetch(
-      `http://localhost:5181/api/Books?page=${currentPage}&limit=${booksPerPage}`
-    )
+    const params = new URLSearchParams();
+    params.append("page", currentPage.toString());
+    params.append("limit", booksPerPage.toString());
+
+    // Add selected categories if any
+    if (selectedCategories.length > 0) {
+      params.append("categories", selectedCategories.join(","));
+    }
+
+    fetch(`http://localhost:5181/api/Books?${params}`)
       .then((response) => response.json())
       .then((data) => {
         let sortedBooks = data.books.sort((a: Book, b: Book) => {
@@ -23,7 +45,7 @@ const BookList: React.FC = () => {
         setTotalPages(data.totalPages);
       })
       .catch((error) => console.error("Error fetching books:", error));
-  }, [currentPage, booksPerPage, sortOrder]); // Re-run when sorting changes
+  }, [currentPage, booksPerPage, sortOrder, selectedCategories]); // Now it also depends on selectedCategories
 
   // Toggle sorting order
   const toggleSortOrder = () => {
@@ -40,6 +62,10 @@ const BookList: React.FC = () => {
 
   return (
     <div className="container mt-4">
+      <CategoryFilter
+        setSelectedCategories={setSelectedCategories}
+        handleCheckboxChange={handleCheckboxChange}
+      />
       <h2 className="text-center mb-4">Book List</h2>
       <div className="d-flex justify-content-between mb-3">
         {/* Sorting Button */}
