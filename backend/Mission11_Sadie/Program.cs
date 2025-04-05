@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:5175") // React frontend URL
+            policy.WithOrigins("http://localhost:5175", "https://mission13-sadie-backend-azd3hughgecxe5d4.westcentralus-01.azurewebsites.net") // React frontend URL
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
