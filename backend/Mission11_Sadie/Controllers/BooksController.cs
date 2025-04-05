@@ -76,10 +76,14 @@ public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
         return Ok(response);
     }
     catch (Exception ex)
+{
+    Console.WriteLine($"Error fetching books: {ex.Message}");
+    if (ex.InnerException != null)
     {
-        // Log the exception (you should implement proper logging)
-        return StatusCode(500, "An error occurred while fetching books.");
+        Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
     }
+    return StatusCode(500, $"Error fetching books: {ex.Message}");
+}
 }
 
         [HttpGet("Categories")]
