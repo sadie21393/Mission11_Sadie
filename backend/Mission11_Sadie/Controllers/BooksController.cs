@@ -20,7 +20,7 @@ namespace BookstoreAPI.Controllers
 public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
     [FromQuery] int page = 1, 
     [FromQuery] int limit = 5, 
-    [FromQuery] List<string>? projectTypes = null)
+    [FromQuery] List<string>? bookTypes = null)
 {
     try 
     {
@@ -32,12 +32,12 @@ public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
             .Distinct()
             .ToListAsync();
 
-        // If projectTypes is null or contains all classifications, skip filtering
-        if (projectTypes != null && 
-            projectTypes.Any() && 
-            projectTypes.Count != allClassifications.Count)
+        // If bookTypes is null or contains all classifications, skip filtering
+        if (bookTypes != null && 
+            bookTypes.Any() && 
+            bookTypes.Count != allClassifications.Count)
         {
-            query = query.Where(p => projectTypes.Contains(p.Classification));
+            query = query.Where(p => bookTypes.Contains(p.Classification));
         }
 
         // Validate page and limit parameters
@@ -92,5 +92,64 @@ public async Task<ActionResult<IEnumerable<Book>>> GetBooks(
 
             return Ok(categories);
         } 
+
+[HttpPost("AddBook")]
+public async Task<IActionResult> AddBook([FromBody] Book newBook)
+{
+    try
+    {
+        newBook.BookId = 0; // Ensure it’s reset to let the DB assign it
+
+        _booksContext.Books.Add(newBook);
+        await _booksContext.SaveChangesAsync();
+        return Ok(newBook);
+        
+
+        
+    }
+    catch (Exception ex)
+    {
+        // Log the full exception details
+        Console.WriteLine($"Error adding book: {ex.Message}");
+        if (ex.InnerException != null)
+        {
+            Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+        }
+        return StatusCode(500, $"Error adding book: {ex.Message}. Inner exception: {ex.InnerException?.Message}");
+    }
+}
+        [HttpPut("UpdateBook/{bookId}")]
+        public IActionResult UpdateBook(int bookId, [FromBody] Book updatedBook)
+        {
+            var existingBook = _booksContext.Books.Find(bookId);
+
+            existingBook.Title = updatedBook.Title;
+            existingBook.Author = updatedBook.Author;
+            existingBook.Publisher = updatedBook.Publisher;
+            existingBook.Classification = updatedBook.Classification;
+            existingBook.PageCount = updatedBook.PageCount;
+            existingBook.Price = updatedBook.Price;
+
+            _booksContext.Books.Update(existingBook);
+            _booksContext.SaveChanges();
+
+            return Ok(existingBook);
+        }
+
+        [HttpDelete("DeleteBook/{bookId}")]
+        public IActionResult DeleteBook(int bookId)
+        {
+            var book = _booksContext.Books.Find(bookId);
+
+            if (book == null)
+            {
+                return NotFound(new {message = "Book not found"});
+            }
+
+            _booksContext.Books.Remove(book);
+            _booksContext.SaveChanges();
+
+            return NoContent();
+        }
     }
 }

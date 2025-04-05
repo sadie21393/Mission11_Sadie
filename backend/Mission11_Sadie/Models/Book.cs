@@ -23,6 +23,9 @@ namespace BookstoreAPI.Models
         public string Classification { get; set; } = string.Empty;
 
         [Required]
+        public string Category { get; set; } = string.Empty;
+
+        [Required]
         public int PageCount { get; set; }
 
         [Required]

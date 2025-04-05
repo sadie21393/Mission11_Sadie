@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { Book } from "../types/Book";
 import { useNavigate } from "react-router-dom";
+import { fetchBooks } from "../api/BooksAPI";
+import Pagination from "./Pagination";
 
 function BookList({ selectedCategories }: { selectedCategories: string[] }) {
   const [books, setBooks] = useState<Book[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [booksPerPage, setBooksPerPage] = useState(5);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Sorting state
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      const categoryParams = selectedCategories
-        .map((cat) => `projectTypes=${encodeURIComponent(cat)}`)
-        .join("&");
+    const loadBooks = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5181/api/Books?page=${currentPage}&limit=${booksPerPage}${selectedCategories.length ? `&${categoryParams}` : ""}`
+        setLoading(true);
+        const data = await fetchBooks(
+          currentPage,
+          booksPerPage,
+          selectedCategories
         );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        console.log("Fetched data:", data); // Add this line here
 
         let sortedBooks = data.books.sort((a: Book, b: Book) => {
           return sortOrder === "asc"
@@ -33,26 +32,25 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
         });
 
         setBooks(sortedBooks);
-        setTotalPages(data.totalPages);
+        setTotalPages(Math.ceil(data.totalBooks / booksPerPage));
+        console.log("Books per page:", booksPerPage);
+        console.log("Total books:", data.totalBooks);
       } catch (error) {
         console.error("Error fetching books:", error);
+        setError("Failed to load books.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchBooks();
+    loadBooks();
   }, [currentPage, booksPerPage, sortOrder, selectedCategories]);
 
-  // Toggle sorting order
+  if (loading) return <p>Loading projects...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
+
   function toggleSortOrder() {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-  }
-
-  // Handle books per page change
-  function handleBooksPerPageChange(
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) {
-    setBooksPerPage(Number(event.target.value));
-    setCurrentPage(1); // Reset to page 1
   }
 
   return (
@@ -60,24 +58,9 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
       <div className="container mt-4">
         <h2 className="text-center mb-4">Book List</h2>
         <div className="d-flex justify-content-between mb-3">
-          {/* Sorting Button */}
           <button className="btn btn-secondary" onClick={toggleSortOrder}>
             Sort by Title {sortOrder === "asc" ? "▲" : "▼"}
           </button>
-
-          {/* Dropdown to select books per page */}
-          <div>
-            <label className="me-2">Books per page:</label>
-            <select
-              className="form-select d-inline w-auto"
-              value={booksPerPage}
-              onChange={handleBooksPerPageChange}
-            >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-            </select>
-          </div>
         </div>
         <div>
           <ul className="list-group">
@@ -93,14 +76,15 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
                     <strong>Author:</strong> {book.author} <br />
                     <strong>Publisher:</strong> {book.publisher} <br />
                     <strong>ISBN:</strong> {book.isbn} <br />
+                    <strong>Category:</strong>
+                    {book.category}
+                    <br />
                     <strong>Classification:</strong> {book.classification}{" "}
                     <br />
                     <strong>Number of Pages:</strong> {book.pageCount} <br />
                     <strong>Price:</strong>{" "}
                     <span>${book.price.toFixed(2)}</span>
-                    <br></br>
-                    {/* THIS IS AN ADDED BOOTSTRAP FEATURE : ICONS  */}
-                    {/* BOOKLIST.TSX LINE 104-113 */}
+                    <br />
                     <button
                       className="btn btn-success"
                       onClick={() =>
@@ -117,21 +101,17 @@ function BookList({ selectedCategories }: { selectedCategories: string[] }) {
             )}
           </ul>
         </div>
-        {/* Pagination Buttons */}
-        {totalPages > 1 && (
-          <div className="mt-4 d-flex justify-content-center">
-            {[...Array(totalPages).keys()].map((number) => (
-              <button
-                key={number + 1}
-                className={`btn ${currentPage === number + 1 ? "btn-primary" : "btn-outline-primary"} mx-1`}
-                onClick={() => setCurrentPage(number + 1)}
-              >
-                {number + 1}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        booksPerPage={booksPerPage}
+        setCurrentPage={setCurrentPage}
+        setBooksPerPage={(newSize) => {
+          setBooksPerPage(newSize);
+          setCurrentPage(1);
+        }}
+      />
     </>
   );
 }

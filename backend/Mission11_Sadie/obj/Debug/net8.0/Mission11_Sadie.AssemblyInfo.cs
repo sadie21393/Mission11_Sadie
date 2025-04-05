@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Mission11_Sadie")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1271c67644393c9da31e8df1379b07244c7b8a4b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d41443d7cbd706e3c9fa3a43538b07b3b5b8794d")]
 [assembly: System.Reflection.AssemblyProductAttribute("Mission11_Sadie")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Mission11_Sadie")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

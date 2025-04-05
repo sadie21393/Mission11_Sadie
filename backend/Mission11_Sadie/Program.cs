@@ -16,7 +16,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") // React frontend URL
+            policy.WithOrigins("http://localhost:5175") // React frontend URL
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
@@ -27,6 +27,14 @@ var connectionString = builder.Configuration.GetConnectionString("BookConnection
 
 builder.Services.AddDbContext<BookstoreDbContext>(options =>
     options.UseSqlite(connectionString));
+
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowReactApp",
+    policy => {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    }));
 
 var app = builder.Build();
 
