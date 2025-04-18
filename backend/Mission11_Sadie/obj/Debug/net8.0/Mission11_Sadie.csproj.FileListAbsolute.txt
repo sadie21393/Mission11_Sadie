@@ -160,3 +160,9 @@ C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_S
 C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\obj\Debug\net8.0\Mission11_Sadie.genruntimeconfig.cache
 C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\obj\Debug\net8.0\ref\Mission11_Sadie.dll
 C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\obj\Debug\net8.0\Mission11_Sadie.sourcelink.json
+C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\bin\Debug\net8.0\publish\web.config
+C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\bin\Debug\net8.0\publish\appsettings.Development.json
+C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\bin\Debug\net8.0\publish\appsettings.json
+C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\bin\Debug\net8.0\publish\Mission11_Sadie.deps.json
+C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\bin\Debug\net8.0\publish\Mission11_Sadie.runtimeconfig.json
+C:\Users\porte\OneDrive\IS_SEM2\412 - HILTON\Mission11_Sadie\backend\Mission11_Sadie\bin\Debug\net8.0\publish\Mission11_Sadie.staticwebassets.endpoints.json
